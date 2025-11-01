@@ -2,19 +2,19 @@ using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
+using UserManagementAzFunction.Repositories;
 
 namespace UserManagementAzFunction
 {
     public class GetUserById
     {
         private readonly ILogger _logger;
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IUserRepository _userRepository;
 
-        public GetUserById(ILoggerFactory loggerFactory, ApplicationDbContext dbContext)
+        public GetUserById(ILoggerFactory loggerFactory, IUserRepository userRepository)
         {
             _logger = loggerFactory.CreateLogger<GetUserById>();
-            _dbContext = dbContext;
+            _userRepository = userRepository;
         }
 
         [Function("GetUserById")]
@@ -26,7 +26,7 @@ namespace UserManagementAzFunction
 
             try
             {
-                var user = await _dbContext.Users.FindAsync(id);
+                var user = await _userRepository.GetByIdAsync(id);
 
                 if (user == null)
                 {

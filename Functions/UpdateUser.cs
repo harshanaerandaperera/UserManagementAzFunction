@@ -2,20 +2,20 @@ using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using UserManagementAzFunction.Repositories;
 
 namespace UserManagementAzFunction
 {
     public class UpdateUser
     {
         private readonly ILogger _logger;
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IUserRepository _userRepository;
 
-        public UpdateUser(ILoggerFactory loggerFactory, ApplicationDbContext dbContext)
+        public UpdateUser(ILoggerFactory loggerFactory, IUserRepository userRepository)
         {
             _logger = loggerFactory.CreateLogger<UpdateUser>();
-            _dbContext = dbContext;
+            _userRepository = userRepository;
         }
 
         [Function("UpdateUser")]
@@ -27,7 +27,7 @@ namespace UserManagementAzFunction
 
             try
             {
-                var user = await _dbContext.Users.FindAsync(id);
+                var user = await _userRepository.GetByIdAsync(id);
 
                 if (user == null)
                 {
@@ -59,7 +59,7 @@ namespace UserManagementAzFunction
                 if (!string.IsNullOrEmpty(updateRequest.Status))
                     user.Status = updateRequest.Status;
 
-                await _dbContext.SaveChangesAsync();
+                await _userRepository.UpdateAsync(user);
 
                 _logger.LogInformation($"User updated successfully: {id}");
 

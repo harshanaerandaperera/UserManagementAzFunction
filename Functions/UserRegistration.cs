@@ -3,18 +3,20 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using UserManagementAzFunction.Models;
+using UserManagementAzFunction.Repositories;
 
 namespace UserManagementAzFunction
 {
     public class UserRegistration
     {
         private readonly ILogger _logger;
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IUserRepository _userRepository;
 
-        public UserRegistration(ILoggerFactory loggerFactory, ApplicationDbContext dbContext)
+        public UserRegistration(ILoggerFactory loggerFactory, IUserRepository userRepository)
         {
             _logger = loggerFactory.CreateLogger<UserRegistration>();
-            _dbContext = dbContext;
+            _userRepository = userRepository;
         }
 
         [Function("RegisterUser")]
@@ -46,8 +48,7 @@ namespace UserManagementAzFunction
                     Status = "Active"
                 };
 
-                _dbContext.Users.Add(user);
-                await _dbContext.SaveChangesAsync();
+                await _userRepository.CreateAsync(user);
 
                 _logger.LogInformation($"User saved to database: {user.Id}");
 

@@ -2,19 +2,19 @@ using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
+using UserManagementAzFunction.Repositories;
 
 namespace UserManagementAzFunction
 {
     public class DeleteUser
     {
         private readonly ILogger _logger;
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IUserRepository _userRepository;
 
-        public DeleteUser(ILoggerFactory loggerFactory, ApplicationDbContext dbContext)
+        public DeleteUser(ILoggerFactory loggerFactory, IUserRepository userRepository)
         {
             _logger = loggerFactory.CreateLogger<DeleteUser>();
-            _dbContext = dbContext;
+            _userRepository = userRepository;
         }
 
         [Function("DeleteUser")]
@@ -26,7 +26,7 @@ namespace UserManagementAzFunction
 
             try
             {
-                var user = await _dbContext.Users.FindAsync(id);
+                var user = await _userRepository.GetByIdAsync(id);
 
                 if (user == null)
                 {
@@ -35,8 +35,7 @@ namespace UserManagementAzFunction
                     return notFoundResponse;
                 }
 
-                _dbContext.Users.Remove(user);
-                await _dbContext.SaveChangesAsync();
+                await _userRepository.DeleteAsync(user);
 
                 _logger.LogInformation($"User deleted successfully: {id}");
 

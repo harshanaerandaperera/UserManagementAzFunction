@@ -2,7 +2,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using UserManagementAzFunction;
+using UserManagementAzFunction.Data;
+using UserManagementAzFunction.Repositories;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -17,6 +18,9 @@ var host = new HostBuilder()
         
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
+
+        // Register repositories
+        services.AddScoped<IUserRepository, UserRepository>();
     })
     .Build();
 

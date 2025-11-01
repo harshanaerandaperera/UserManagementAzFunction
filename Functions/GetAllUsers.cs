@@ -2,19 +2,19 @@ using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
+using UserManagementAzFunction.Repositories;
 
 namespace UserManagementAzFunction
 {
     public class GetAllUsers
     {
         private readonly ILogger _logger;
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IUserRepository _userRepository;
 
-        public GetAllUsers(ILoggerFactory loggerFactory, ApplicationDbContext dbContext)
+        public GetAllUsers(ILoggerFactory loggerFactory, IUserRepository userRepository)
         {
             _logger = loggerFactory.CreateLogger<GetAllUsers>();
-            _dbContext = dbContext;
+            _userRepository = userRepository;
         }
 
         [Function("GetAllUsers")]
@@ -25,7 +25,7 @@ namespace UserManagementAzFunction
 
             try
             {
-                var users = await _dbContext.Users.ToListAsync();
+                var users = await _userRepository.GetAllAsync();
 
                 var response = req.CreateResponse(HttpStatusCode.OK);
                 await response.WriteAsJsonAsync(users);
