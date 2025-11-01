@@ -35,8 +35,8 @@ public class HelloWorld
         
         // Build response message based on query parameter
         string responseMessage = string.IsNullOrEmpty(name) 
-            ? "Welcome to Azure Functions!" 
-            : $"Hello, {name}! Welcome to Azure Functions!";
+            ? "Welcome to Azure Functions! CI/CD is working! 🚀" 
+            : $"Hello, {name}! CI/CD Pipeline is successfully deployed! 🎉";
         
         // Return IActionResult - automatic JSON serialization and HTTP 200 status
         // Other options: BadRequestResult, NotFoundResult, CreatedResult, etc.
